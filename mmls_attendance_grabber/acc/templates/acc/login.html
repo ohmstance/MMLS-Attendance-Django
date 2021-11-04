@@ -1,0 +1,51 @@
+{% extends 'common/sidebar.html' %}
+
+{% block sidebar_title %}{% block sidebar_title_xs %}{% block title %}Login{% endblock %}{% endblock %}{% endblock %}
+{% block sidebar_content %}{% block sidebar_content_xs %}{% endblock %}{% endblock %}
+
+{% block content %}
+
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            Your username and password didn't match. Please try again.
+        </div>
+    {% endif %}
+
+    {% if next %}
+        <div class="alert alert-danger" role="alert">
+            {% if user.is_authenticated %}
+                Your account doesn't have access to this page. To proceed, please login with an account that has access.
+            {% else %}
+                Please login to see this page.
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'acc:login' %}">
+        {% csrf_token %}
+
+        <div class="mb-3 row">
+            <label for="inputUsername" class="col-sm-5 col-md-4 col-lg-3 col-xxl-2 col-form-label">Username</label>
+            <div class="col-md-8 col-lg-9 col-xxl-10">
+                <input type="text" name="username" required class="form-control" id="inputUsername" autocomplete="username">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="inputPassword" class="col-sm-5 col-md-4 col-lg-3 col-xxl-2 col-form-label">Password</label>
+            <div class="col-md-8 col-lg-9 col-xxl-10">
+                <input type="password" name="password" required class="form-control" id="inputPassword" autocomplete="current-password">
+            </div>
+        </div>
+        <div class="d-flex">
+            <a class="my-auto text-muted" href="{% url 'acc:register' %}">No account?</a>
+            <div class="ms-auto my-auto">
+                <input class='btn btn-primary float-right' type="submit" value="Login">
+            </div>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+
+    {% comment %} {# Assumes you setup the password_reset view in your URLconf #}
+    <p><a href="{% url 'password_reset' %}">Lost password?</a></p> {% endcomment %}
+
+{% endblock %}

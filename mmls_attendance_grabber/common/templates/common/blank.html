@@ -1,0 +1,20 @@
+{% extends 'common/base.html' %}
+
+{% block body %}
+    <div class="d-flex flex-column flex-grow-1 p-4">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="container-xxl p-0">
+                    <div class="alert alert-{% if message.tags == "success" %}success{% elif message.tags == "warning" %}warning{% elif message.tags == "error" %}danger{% else %}info{% endif %}" role="alert">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+
+        {% block content %}<p>Content.</p>{% endblock %}
+
+    </div>
+{% endblock %}

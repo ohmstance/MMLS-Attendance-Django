@@ -1,0 +1,63 @@
+{% extends 'common/sidebar.html' %}
+
+{% block sidebar_title %}{% block sidebar_title_xs %}{% block title %}Register{% endblock %}{% endblock %}{% endblock %}
+{% block sidebar_content %}{% block sidebar_content_xs %}{% endblock %}{% endblock %}
+
+{% block content %}
+
+    {% comment %} {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            <ul class="m-0">
+                {% for error_detail_list in form.errors.values %}
+                    {% for error_detail in error_detail_list %}
+                        <li>{{ error_detail }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %} {% endcomment %}
+
+
+    <form method="post" action="{% url 'acc:register' %}">
+        {% csrf_token %}
+
+        <div class="mb-3 row">
+            <label for="id_username" class="col-sm-5 col-md-4 col-lg-3 col-xxl-2 col-form-label">Username</label>
+            <div class="col-md-8 col-lg-9 col-xxl-10">
+                <input type="text" name="username" required maxlength="150" class="form-control" id="id_username" autocomplete="username">
+                <small class="form-text text-muted">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+            </div>
+        </div>
+        
+        <div class="mb-3 row">
+            <label for="id_password1" class="col-sm-5 col-md-4 col-lg-3 col-xxl-2 col-form-label">Password</label>
+            <div class="col-md-8 col-lg-9 col-xxl-10">
+                <input type="password" name="password1" required class="form-control" id="id_password1" autocomplete="new-password">
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="id_password2" class="col-sm-5 col-md-4 col-lg-3 col-xxl-2 col-form-label">Confirm password</label>
+            <div class="col-md-8 col-lg-9 col-xxl-10">
+                <input type="password" name="password2" required class="form-control" id="id_password2" autocomplete="new-password">
+                <small class="form-text text-muted">Enter the same password as before, for verification.</small>
+            </div>
+        </div>
+
+        <div class="d-flex">
+            <a class="my-auto text-muted" href="{% url 'acc:login' %}">Back to login.</a>
+            <div class="ms-auto my-auto">
+                <input class='btn btn-primary float-right' type="submit" value="Register">
+            </div>
+        </div>
+
+        {% comment %} <ul>
+            <li>Your password can’t be too similar to your other personal information.</li>
+            <li>Your password must contain at least 8 characters.</li>
+            <li>Your password can’t be a commonly used password.</li>
+            <li>Your password can’t be entirely numeric.</li>
+        </ul> {% endcomment %}
+
+    </form>
+
+{% endblock %}

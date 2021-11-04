@@ -1,0 +1,42 @@
+{% extends 'common/base.html' %}
+
+{% block body %}
+<!-- Sidebar: large screen -->
+<div class='d-none d-md-block col-4 bg-dark px-4 py-2' style="max-width: 360px;">
+    <h1 class='text-light'>
+        {% block sidebar_title %}Sidebar title.{% endblock %}
+    </h1>
+    <div class='container-fluid bg-light rounded-3 p-0'>
+        {% block sidebar_content %}Sidebar content.{% endblock %}
+    </div>
+</div>
+
+<div class='col p-0'>
+
+        <!-- Sidebar: small screen -->
+        <div class='d-sm-block d-md-none bg-dark px-4 py-2'>
+            <h1 class='text-light'>
+                {% block sidebar_title_xs %}Sidebar title (XS).{% endblock %}
+            </h1>
+            <div class='container-fluid bg-light rounded-3 p-0 mb-3'>
+                {% block sidebar_content_xs %}Sidebar content (XS).{% endblock %}
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class='container-xxl float-start p-4'>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == "success" %}success{% elif message.tags == "warning" %}warning{% elif message.tags == "error" %}danger{% else %}info{% endif %}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}<p>Content.</p>{% endblock %}
+            
+        </div>
+
+</div>
+{% endblock %}

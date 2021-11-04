@@ -1,0 +1,30 @@
+<nav class='navbar navbar-expand-md navbar-dark bg-dark'>
+    <div class='container-fluid p-0'>
+        <a class="navbar-brand" href="{% url 'common:index' %}">MMLS Attendance Grabber</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'acc:logout' %}">Logout: {{ user.username }}</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'acc:login' %}">Login</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'account' %}active{% endif %}" href="{% url 'acc:account' %}">Account</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'course' %}active{% endif %}" href="{% url 'app:course' %}">Course</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'app:attendance' %}">Attendance</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
