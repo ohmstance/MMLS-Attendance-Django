@@ -1,4 +1,3 @@
-import bootstrap4
 from django.contrib import admin
 
 from .models import Choice, Question
