@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'acc.apps.AccConfig',
     'app.apps.AppConfig',
     'common.apps.CommonConfig',
-    'polls.apps.PollsConfig',
     'qr_code',
     'background_task',
     'django.contrib.admin',

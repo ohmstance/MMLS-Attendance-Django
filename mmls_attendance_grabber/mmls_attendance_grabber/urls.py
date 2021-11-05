@@ -21,5 +21,4 @@ urlpatterns = [
     path('', include('common.urls')),
     path('acc/', include('acc.urls')),
     path('app/', include('app.urls')),
-    path('polls/', include('polls.urls')),
 ]
