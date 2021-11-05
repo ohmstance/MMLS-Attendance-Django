@@ -9,6 +9,7 @@ from django.db.models.signals import post_save, post_delete
 class UserData(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     course = models.JSONField(default=list) # mmlsattendance.Courses()
+    timetable = models.JSONField(default=list) #mmu_ics.get_timetable_mmumobileapi()
 
     class Meta:
         verbose_name = "user data"

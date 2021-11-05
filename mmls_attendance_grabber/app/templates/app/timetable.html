@@ -1,0 +1,136 @@
+{% extends 'common/sidebar.html' %}
+
+{% block sidebar_title %}{% block sidebar_title_xs %}{% block title %}Timetable{% endblock %}{% endblock %}{% endblock %}
+
+{% block sidebar_content %}{% block sidebar_content_xs %}
+    <div class="container-fluid py-3">
+
+        <form method="post" action="{% url 'app:load_timetable' %}">
+            {% csrf_token %}
+
+            <div class="mb-3 row">
+                <label for="inputUsername" class="col-form-label">MMLS Username</label>
+                <div class="col-12">
+                    <input type="text" name="mmls_username" required class="form-control" id="inputUsername" autocomplete="username">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="inputPassword" class="col-form-label">MMLS Password</label>
+                <div class="col-12">
+                    <input type="password" name="mmls_password" required class="form-control" id="inputPassword" autocomplete="current-password">
+                </div>
+            </div>
+            <div class="d-flex">
+                <small class="my-auto form-text me-2">Load timetable.</small>
+                <div class="ms-auto my-auto">
+                    <input class='btn btn-primary float-right' type="submit" value="Load">
+                </div>
+            </div>
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+
+    </div>
+
+{% endblock %}{% endblock %}
+
+{% block content %}
+
+    <div class="d-none d-md-block">
+        <ul class="pagination flex-wrap mx-auto">
+            <li class="page-item{% if weekday == 0 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=0 %}">Monday</a></li>
+            <li class="page-item{% if weekday == 1 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=1 %}">Tuesday</a></li>
+            <li class="page-item{% if weekday == 2 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=2 %}">Wednesday</a></li>
+            <li class="page-item{% if weekday == 3 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=3 %}">Thursday</a></li>
+            <li class="page-item{% if weekday == 4 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=4 %}">Friday</a></li>
+            <li class="page-item{% if weekday == 5 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=5 %}">Saturday</a></li>
+            <li class="page-item{% if weekday == 6 %} active{% endif %}"><a class="page-link" href="{% url 'app:timetable' weekday=6 %}">Sunday</a></li>
+        </ul>
+    </div>
+    <div class="d-sm-block d-md-none mb-3">
+        <div class="dropdown">
+            <a class="btn btn-white dropdown-toggle border border-1 border-muted text-primary" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if weekday == 0 %} Monday
+                {% elif weekday == 1 %} Tuesday
+                {% elif weekday == 2 %} Wednesday
+                {% elif weekday == 3 %} Thursday
+                {% elif weekday == 4 %} Friday
+                {% elif weekday == 5 %} Saturday
+                {% elif weekday == 6 %} Sunday
+                {% else %}
+                {% endif %}
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item{% if weekday == 0 %} active{% endif %}" href="{% url 'app:timetable' weekday=0 %}">Monday</a></li>
+                <li><a class="dropdown-item{% if weekday == 1 %} active{% endif %}" href="{% url 'app:timetable' weekday=1 %}">Tuesday</a></li>
+                <li><a class="dropdown-item{% if weekday == 2 %} active{% endif %}" href="{% url 'app:timetable' weekday=2 %}">Wednesday</a></li>
+                <li><a class="dropdown-item{% if weekday == 3 %} active{% endif %}" href="{% url 'app:timetable' weekday=3 %}">Thursday</a></li>
+                <li><a class="dropdown-item{% if weekday == 4 %} active{% endif %}" href="{% url 'app:timetable' weekday=4 %}">Friday</a></li>
+                <li><a class="dropdown-item{% if weekday == 5 %} active{% endif %}" href="{% url 'app:timetable' weekday=5 %}">Saturday</a></li>
+                <li><a class="dropdown-item{% if weekday == 6 %} active{% endif %}" href="{% url 'app:timetable' weekday=6 %}">Sunday</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if schedule|length %}
+        {% for event in schedule %}
+            <div class="shadow rounded-3 mb-3">
+                <div class="row mx-auto">
+                    <div class="col-4 col-sm-3 col-lg-2 p-3 bg-dark rounded-start">
+                        <div class="flex-row justify-content-center">
+                            <h4 class="text-white text-center">{{ event.start }}</h4>
+                        </div>
+                        <div class="flex-row justify-content-center">
+                            <h4 class="text-white text-center">{{ event.end }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col p-3 rounded-end">
+                        <div class="flex-row text-break">
+                            <h4>{{ event.subject_code }} {{ event.subject_name }}</h4>
+                        </div>
+                        <div class="flex-row text-break">
+                            <p class="my-0">{{ event.section }} - {{ event.venue }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info" role="alert">Nothing is scheduled for this day.</div>
+    {% endif %}
+
+    <p>
+        <a class="my-auto text-muted" href="#" data-bs-toggle="collapse" data-bs-target="#exportTimetable">
+            Export timetable?
+        </a>
+    </p>
+    <div class="collapse" id="exportTimetable">
+        <div class="card card-body" style="max-width: 720px">
+            <form method="post" action="{% url 'app:export_timetable' %}">
+                {% csrf_token %}
+
+                <div class="mb-3 row">
+                    <label for="startDate" class="col-form-label">Start (Date of first class of current trimester)</label>
+                    <div class="col-12">
+                        <input id="startDate" class="form-control" type="date" name="date1" value="{{ date1.isoformat }}" placeholder="yyyy-mm-dd">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="endDate" class="col-form-label">End (Date of last class of current trimester)</label>
+                    <div class="col-12">
+                        <input id="endDate" class="form-control" type="date" name="date2" value="{{ date2.isoformat }}" placeholder="yyyy-mm-dd">
+                    </div>
+                </div>
+
+                <div class="d-flex">
+                    <small class="my-auto form-text me-2">Generates class schedules with defined date range.</small>
+                    <div class="ms-auto my-auto">
+                        <input class='btn btn-primary float-right' type="submit" value="Download">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -22,6 +22,9 @@
                     <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'course' %}active{% endif %}" href="{% url 'app:course' %}">Course</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'timetable' %}active{% endif %}" href="{% url 'app:timetable' %}">Timetable</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if not user.is_authenticated %}disabled{% elif request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'app:attendance' %}">Attendance</a>
                 </li>
             </ul>

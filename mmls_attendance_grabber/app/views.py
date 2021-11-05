@@ -1,7 +1,7 @@
 import asyncio
 import json
 import datetime
-from django.http.response import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.http.response import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views import generic
 from django.contrib.auth.decorators import login_required
@@ -9,9 +9,10 @@ from django.utils.decorators import method_decorator, classonlymethod
 from django.contrib import messages
 from asgiref.sync import async_to_sync, sync_to_async
 from django.utils import timezone
+from django.http import FileResponse
 
 # Create your views here.
-from .modules import mmlsattendance
+from .modules import mmlsattendance, mmu_ics
 from .models import UserData
 
 class CourseView(generic.View):
@@ -76,6 +77,78 @@ class ModifyCourseView(generic.View):
         user_app_data.save()
         messages.success(request, "Class selection updated.")
         return redirect("app:course")
+
+class TimetableView(generic.View):
+    template_name = "app/timetable.html"
+
+    @method_decorator(login_required)
+    def get(self, request, weekday=None):
+        if weekday is None:
+            tzinfo = datetime.timezone(datetime.timedelta(hours=8), name="Malaysian Standard Time (MST)")
+            dtnow = datetime.datetime.now(tzinfo)
+            weekday = dtnow.today().weekday()
+        if not (0 <= weekday <= 6):
+            return redirect("app:timetable")
+        user = request.user
+        timetable = UserData.objects.get(user=user.pk).timetable
+        if len(timetable) == 0:
+            messages.info(request, "Timetable not loaded.")
+        weekday_day = {
+            0: 'Monday',
+            1: 'Tuesday',
+            2: 'Wednesday',
+            3: 'Thursday',
+            4: 'Friday',
+            5: 'Saturday',
+            6: 'Sunday',
+        }
+        timetable_flattened = (event for day in timetable for event in day)
+        schedule = [event for event in timetable_flattened if event['day'] == weekday_day[weekday]]
+        return render(request, self.template_name, {'schedule': schedule, 'weekday': weekday})
+
+class LoadTimetableView(generic.View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        try:
+            mmls_username = request.POST['mmls_username']
+            mmls_password = request.POST['mmls_password']
+        except:
+            return HttpResponseForbidden()
+        user = request.user
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            timetable = loop.run_until_complete(mmu_ics.get_timetable_mmumobileapi(mmls_username, mmls_password))
+            if timetable: # If not empty
+                user_app_data = UserData.objects.get(user=user.pk)
+                user_app_data.timetable = timetable
+                user_app_data.save()
+                messages.success(request, "Timetable loaded successfully.")
+            else:
+                messages.error(request, "Your username and password didn't match. Please try again.")
+        except mmu_ics.RateLimitError:
+            messages.error(request, "Rate-limited. Please try again later.")
+            return redirect("app:timetable")
+        finally:
+            loop.close()
+        return redirect("app:timetable")
+
+class ExportTimetableView(generic.View):
+
+    @method_decorator(login_required)
+    def post(self, request):
+        try:
+            date1 = datetime.date.fromisoformat(request.POST['date1'])
+            date2 = datetime.date.fromisoformat(request.POST['date2'])
+        except:
+            return HttpResponseBadRequest()
+        user = request.user
+        timetable = UserData.objects.get(user=user.pk).timetable
+        f = mmu_ics.ics_from_timetable(timetable, date1, date2)
+        f.seek(0)
+        response = FileResponse(f, as_attachment=True, filename=f"mmutimetable-{user.username}.ics")
+        return response
 
 class AttendanceView(generic.View):
     template_name = "app/attendance.html"
