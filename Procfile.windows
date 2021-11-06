@@ -1,0 +1,2 @@
+web: cd mmls_attendance_grabber && manage.py runserver
+worker: cd mmls_attendance_grabber && manage.py process_tasks
