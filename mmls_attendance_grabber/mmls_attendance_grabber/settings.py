@@ -24,7 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRETKEY', default='django-insecure-(x-vpo#=zl@0wb4!7btiaydu)6*if4ko-)@8#bu536k=e_8u^u')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+import os
+if 'ON_HEROKU' in os.environ:
+    DEBUG = False
+else:
+    config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -37,6 +41,7 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     'qr_code',
     'background_task',
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,15 +91,20 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
 
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DBNAME'),
-        'USER': config('DBUSER'),
-        'PASSWORD': config('DBPASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': config('DBNAME'),
+    #     'USER': config('DBUSER'),
+    #     'PASSWORD': config('DBPASSWORD'),
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
 }
+
+# Defaults to .env variables -- dj_database_url used for Heroku
+import dj_database_url
+defaultdb = f"postgres://{config('DBUSER')}:{config('DBPASSWORD')}@localhost/{config('DBNAME')}"
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, default=defaultdb)
 
 
 # Password validation
@@ -134,6 +145,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
+WHITENOISE_ROOT = os.path.join(STATIC_ROOT, 'common')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

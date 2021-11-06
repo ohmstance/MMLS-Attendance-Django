@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-
+from django.db.utils import ProgrammingError
 import logging
 import datetime
 
@@ -21,7 +21,7 @@ class AppConfig(AppConfig):
                     datetime_later += datetime.timedelta(days=1)
 
                 tasks.update_cache(schedule=datetime_later, repeat=Task.DAILY, verbose_name="cache_attendance")
-        except django.db.utils.ProgrammingError as e:
+        except ProgrammingError as e:
             # Error during migration, ignore.
             logging.info(f"Ignoring exception: {repr(e)}")
             pass
