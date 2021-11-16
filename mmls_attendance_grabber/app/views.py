@@ -17,7 +17,7 @@ from .models import UserData
 
 class CourseView(generic.View):
     template_name = "app/course.html"
-    
+
     @method_decorator(login_required)
     def get(self, request):
         user = request.user
@@ -57,7 +57,7 @@ class LoadCourseView(generic.View):
         finally:
             loop.close()
         return redirect("app:course")
-            
+
 class ModifyCourseView(generic.View):
 
     @method_decorator(login_required)
@@ -69,7 +69,7 @@ class ModifyCourseView(generic.View):
         course.load_json(json.dumps(course_raw))
         for a_class in course.classes:
             if str(a_class.id) in checked_values:
-                a_class.selected = True 
+                a_class.selected = True
             else:
                 a_class.selected = False
         user_app_data = UserData.objects.get(user=user.pk)
@@ -126,7 +126,7 @@ class LoadTimetableView(generic.View):
                 user_app_data.save()
                 messages.success(request, "Timetable loaded successfully.")
             else:
-                messages.error(request, "Your username and password didn't match. Please try again.")
+                messages.error(request, "Your username and password didn't match, or timetable is empty. Please try again later.")
         except mmu_ics.RateLimitError:
             messages.error(request, "Rate-limited. Please try again later.")
             return redirect("app:timetable")
@@ -211,8 +211,8 @@ class AttendanceView(generic.View):
             for subject in course.subjects:
                 # Append to attendance list if belong to subject and date
                 filtered_attendances = [
-                    attendance for attendance in attendances 
-                    if attendance.subject_id == subject.id 
+                    attendance for attendance in attendances
+                    if attendance.subject_id == subject.id
                     and attendance.class_date == date
                 ]
                 # Sort attendances by start time
@@ -227,5 +227,3 @@ class AttendanceView(generic.View):
             messages.info(request, "No attendances found.")
 
         return render(request, self.template_name, {'categorized_attendances': categorized_attendances, 'date1': date1, 'date2': date2})
-
-
